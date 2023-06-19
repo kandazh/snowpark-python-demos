@@ -49,7 +49,6 @@ session.sql(""" INSERT INTO BUDGET_ALLOCATIONS_AND_ROI  ( MONTH, SearchEngine, S
              ('June', 11200, 5400, 3500, 2400, 0.16), 
              ('July', 8400, 4500, 2700, 1800, 0.11), 
              ('August', 8900, 4900, 2900, 2100, 0.12);""").collect()
-collect = session.table("BUDGET_ALLOCATIONS_AND_ROI").show()
 collect = session.table("BUDGET_ALLOCATIONS_AND_ROI")
 collect.count()
 
@@ -80,6 +79,7 @@ for channel, default, col in zip(channels, df_last_months_allocations["BUDGET"].
     with col:
         budget = st.slider(channel, 0, 100, int(default), 5)
         budgets.append(budget)
+
 
 # Function to call "predict_roi" UDF that uses the pre-trained model for inference
 # Note: Both the model training and UDF registration is done in Snowpark_For_Python.ipynb
