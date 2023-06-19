@@ -1,0 +1,9 @@
+{
+  "account": "nx08057.ap-southeast-1",
+  "user": "kandasamy",
+  "password": "SoftwarE@9",
+  "role": "ACCOUNTADMIN",
+  "warehouse": "PC_MATILLION_WH",
+  "database": "SNOWPARK",
+  "schema": "PUBLIC"
+}
