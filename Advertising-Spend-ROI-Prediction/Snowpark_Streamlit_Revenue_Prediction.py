@@ -55,7 +55,7 @@ collect.count()
 # Function to load last six months' budget allocations and ROI
 @st.cache_data(show_spinner=False)
 def load_data():
-    historical_data = session.table("BUDGET_ALLOCATIONS_AND_ROI").unpivot("Budget", "Channel",["SearchEngine", "SocialMedia", "Video", "Email"]).filter(col("MONTH") != "July")
+    historical_data = session.table("BUDGET_ALLOCATIONS_AND_ROI").unpivot("Budget", "Channel", ["SearchEngine", "SocialMedia", "Video", "Email"]).filter(col("MONTH") != "July")
     df_last_six_months_allocations = historical_data.drop("ROI").to_pandas()
     df_last_six_months_roi = historical_data.drop(["CHANNEL", "BUDGET"]).distinct().to_pandas()
     df_last_months_allocations = historical_data.filter(col("MONTH") == "June").to_pandas()
