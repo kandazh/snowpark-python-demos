@@ -14,7 +14,7 @@ APP_ICON_URL = "https://i.imgur.com/dBDOHH3.png"
 # Function to create Snowflake Session to connect to Snowflake
 def create_session():
     if "snowpark_session" not in st.session_state:
-        session = Session.builder.configs(json.load(open("connection.json"))).create()
+        session = Session.builder.configs(json.load(open('creds.json'))).create()
         session.use_warehouse("SNOWPARK_DEMO_WH")
         session.use_database("SNOWPARK_ROI_DEMO")
         session.use_schema("AD_DATA")
@@ -23,14 +23,50 @@ def create_session():
         session = st.session_state['snowpark_session']
     return session
 
+# call and to establish the session from connection
+session = create_session()
+
+# create and load the data
+session.sql("CREATE or replace transient TABLE BUDGET_ALLOCATIONS_AND_ROI (MONTH VARCHAR(20), SearchEngine INT, SocialMedia INT, Video INT, Email INT,ROI DECIMAL(10, 2));").collect()
+session.sql(""" INSERT INTO BUDGET_ALLOCATIONS_AND_ROI  ( MONTH, SearchEngine, SocialMedia, Video, Email, ROI) VALUES 
+             ('January', 10000, 5000, 3000, 2000, 0.12), 
+             ('February', 8000, 4000, 2000, 1500, 0.15), 
+             ('March', 9000, 5500, 3500, 2500, 0.11), 
+             ('April', 7500, 3800, 2300, 1800, 0.09), 
+             ('May', 9200, 4700, 3100, 2100, 0.14), 
+             ('June', 10500, 5200, 3300, 2400, 0.13), 
+             ('July', 8100, 4300, 2500, 1700, 0.08), 
+             ('August', 8800, 4800, 2800, 2000, 0.1), 
+             ('September', 9300, 5100, 3200, 2300, 0.11), 
+             ('October', 8500, 4400, 2700, 1900, 0.12), 
+             ('November', 9700, 5900, 3700, 2700, 0.16), 
+             ('December', 7800, 4200, 2400, 1600, 0.09), 
+             ('January', 10200, 5500, 3800, 2200, 0.13), 
+             ('February', 7600, 4100, 2300, 1500, 0.1), 
+             ('March', 9100, 5700, 3600, 2600, 0.12), 
+             ('April', 7900, 4000, 2100, 1400, 0.09), 
+             ('May', 9800, 4600, 3000, 2000, 0.15), 
+             ('June', 11200, 5400, 3500, 2400, 0.16), 
+             ('July', 8400, 4500, 2700, 1800, 0.11), 
+             ('August', 8900, 4900, 2900, 2100, 0.12);""").collect()
+collect = session.table("BUDGET_ALLOCATIONS_AND_ROI").show()
+collect = session.table("BUDGET_ALLOCATIONS_AND_ROI")
+collect.count()
+
 # Function to load last six months' budget allocations and ROI
 @st.cache_data(show_spinner=False)
 def load_data():
-    historical_data = session.table("BUDGET_ALLOCATIONS_AND_ROI").unpivot("Budget", "Channel", ["SearchEngine", "SocialMedia", "Video", "Email"]).filter(col("MONTH") != "July")
+    historical_data = session.table("BUDGET_ALLOCATIONS_AND_ROI").unpivot("Budget", "Channel",["SearchEngine", "SocialMedia", "Video", "Email"]).filter(col("MONTH") != "July")
     df_last_six_months_allocations = historical_data.drop("ROI").to_pandas()
     df_last_six_months_roi = historical_data.drop(["CHANNEL", "BUDGET"]).distinct().to_pandas()
     df_last_months_allocations = historical_data.filter(col("MONTH") == "June").to_pandas()
+    # historical_data.show()
+    # df_last_six_months_allocations.show()
+    # df_last_six_months_roi.show()
+    # df_last_months_allocations.show()
     return historical_data.to_pandas(), df_last_six_months_allocations, df_last_six_months_roi, df_last_months_allocations
+
+# load_data()
 
 # Streamlit config
 st.set_page_config("SportsCo Ad Spend Optimizer", APP_ICON_URL, "centered")
@@ -38,8 +74,7 @@ st.write("<style>[data-testid='stMetricLabel'] {min-height: 0.5rem !important}</
 st.image(APP_ICON_URL, width=80)
 st.title("SportsCo Ad Spend Optimizer")
 
-# Call functions to get Snowflake session and load data
-session = create_session()
+# Call functions to load data
 historical_data, df_last_six_months_allocations, df_last_six_months_roi, df_last_months_allocations = load_data()
 
 # Display advertising budget sliders and set their default values
