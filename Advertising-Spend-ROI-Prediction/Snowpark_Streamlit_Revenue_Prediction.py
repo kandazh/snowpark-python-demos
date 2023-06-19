@@ -60,13 +60,7 @@ def load_data():
     df_last_six_months_allocations = historical_data.drop("ROI").to_pandas()
     df_last_six_months_roi = historical_data.drop(["CHANNEL", "BUDGET"]).distinct().to_pandas()
     df_last_months_allocations = historical_data.filter(col("MONTH") == "June").to_pandas()
-    # historical_data.show()
-    # df_last_six_months_allocations.show()
-    # df_last_six_months_roi.show()
-    # df_last_months_allocations.show()
     return historical_data.to_pandas(), df_last_six_months_allocations, df_last_six_months_roi, df_last_months_allocations
-
-# load_data()
 
 # Streamlit config
 st.set_page_config("SportsCo Ad Spend Optimizer", APP_ICON_URL, "centered")
